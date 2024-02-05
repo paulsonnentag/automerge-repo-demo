@@ -15,6 +15,7 @@
     "@automerge/automerge-repo-network-websocket": "^1.1.0",
     "@automerge/automerge-repo-react-hooks": "^1.1.0",
     "@automerge/automerge-repo-storage-indexeddb": "^1.1.0",
+    "@codesandbox/sandpack-react": "^2.12.0",
     "@radix-ui/react-tabs": "^1.0.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",

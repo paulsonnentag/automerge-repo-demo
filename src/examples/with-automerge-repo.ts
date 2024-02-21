@@ -23,14 +23,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 `;
 
-export const APP_JS_SOURCE = `import {repo} from "./repo.js";
+export const APP_JS_SOURCE = `import { repo } from "./repo.js";
 import { useDocument } from "@automerge/automerge-repo-react-hooks";
 import { useHash } from "./utils.js"
-
 
 export const App = () => {
   const docUrl = useHash()
   const [doc, changeDoc] = useDocument(docUrl);
+
+
 
   const onAddTodo = () => {
     changeDoc((doc) => doc.todos.push({ isDone: false, description: "" }));
@@ -43,6 +44,7 @@ export const App = () => {
     );
   };
 
+  
   const onEditTodoAt = (indexToEdit: number, description: string) => {
     changeDoc((doc) => (doc.todos[indexToEdit].description = description));
   };

@@ -1,6 +1,8 @@
 const APP_JS_SOURCE = `import { useState } from "react"
 
-export default function TodoApp() {
+
+
+export const App = () => {
   const [todos, setTodos] = useState([
     { description: "do something", isDone: false },
     { description: "something else", isDone: true },
@@ -19,7 +21,6 @@ export default function TodoApp() {
   };
 
   const onEditTodoAt = (indexToEdit, description) => {
-
     setTodos((todos) =>
       todos.map((todo, index) =>
         index === indexToEdit ? { ...todo, description } : todo
@@ -58,7 +59,7 @@ export default function TodoApp() {
 
 export const INDEX_JS_SOURCE = `import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.js";
+import { App } from "./App.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

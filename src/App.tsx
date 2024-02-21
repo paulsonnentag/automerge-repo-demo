@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs";
 import { repo } from "./repo";
 import { AutomergeUrl, isValidAutomergeUrl } from "@automerge/automerge-repo";
@@ -38,10 +38,19 @@ interface TodosDoc {
 
 function App() {
   const [activeTab, setActiveTab] = useState("with-automerge-repo");
-  const [iframe, setIframe] = useState<HTMLIFrameElement | null>();
+  const [container, setContainer] = useState<HTMLDivElement | null>();
+  const [editorHeight, setEditorHeight] = useState(0);
 
+  const iframe = useMemo(() => {
+    if (!container) {
+      return;
+    }
+
+    return container.querySelector("iframe");
+  }, [container]);
+
+  // propagate changing hash to iframe
   useEffect(() => {
-    console.log("iframe", iframe);
     if (!iframe) {
       return;
     }
@@ -63,6 +72,25 @@ function App() {
     };
   }, [iframe]);
 
+  // resize editor height
+  useEffect(() => {
+    if (!container) {
+      return;
+    }
+
+    const onWindowResize = () => {
+      setEditorHeight(container.clientHeight);
+    };
+
+    onWindowResize();
+
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, [container]);
+
   const files =
     activeTab === "with-automerge-repo"
       ? WITH_AUTOMERGE_REPO_FILES
@@ -74,53 +102,41 @@ function App() {
       : PLAIN_REACT_VISIBLE_FILES;
 
   return (
-    <div className="p-4 m-auto py-4 h-screen flex flex-col">
+    <div className="p-4 m-auto py-4 h-screen flex flex-col gap-2">
       <h1 className="text-4xl mb-4">Automerge in 5 minutes</h1>
 
-      <div className="flex gap-4 items-stretch flex-1">
-        <div className="flex-1 min-w-0 overflow-auto flex flex-col">
-          <p className="pb-2">Replace useState with useDocument</p>
+      <p className="pb-2">Replace useState with useDocument</p>
 
-          <Tabs value={activeTab} onValueChange={(tab) => setActiveTab(tab)}>
-            <TabsList>
-              <TabsTrigger value="plain">plain react</TabsTrigger>
-              <TabsTrigger value="with-automerge-repo">
-                with automerge
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <Tabs value={activeTab} onValueChange={(tab) => setActiveTab(tab)}>
+        <TabsList>
+          <TabsTrigger value="plain">plain react</TabsTrigger>
+          <TabsTrigger value="with-automerge-repo">with automerge</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-          <div
-            className="flex-1"
-            ref={(current) => {
-              if (current) {
-                setIframe(current.querySelector("iframe"));
-              }
-            }}
-          >
-            <Sandpack
-              files={files}
-              customSetup={{
-                entry: "index.js",
-                dependencies:
-                  activeTab === "with-automerge-repo"
-                    ? {
-                        "@automerge/automerge": "^2.1.10",
-                        "@automerge/automerge-repo": "^1.1.0",
-                        "@automerge/automerge-repo-network-websocket": "^1.1.0",
-                        "@automerge/automerge-repo-react-hooks": "^1.1.0",
-                        "@automerge/automerge-repo-storage-indexeddb": "^1.1.0",
-                      }
-                    : {},
-              }}
-              template="react"
-              options={{
-                visibleFiles: visibleFiles as any,
-                externalResources: ["https://cdn.tailwindcss.com"],
-              }}
-            />
-          </div>
-        </div>
+      <div className="flex-1 overflow-hidden min-h-0" ref={setContainer}>
+        <Sandpack
+          files={files}
+          customSetup={{
+            entry: "index.js",
+            dependencies:
+              activeTab === "with-automerge-repo"
+                ? {
+                    "@automerge/automerge": "^2.1.10",
+                    "@automerge/automerge-repo": "^1.1.0",
+                    "@automerge/automerge-repo-network-websocket": "^1.1.0",
+                    "@automerge/automerge-repo-react-hooks": "^1.1.0",
+                    "@automerge/automerge-repo-storage-indexeddb": "^1.1.0",
+                  }
+                : {},
+          }}
+          template="react"
+          options={{
+            editorHeight,
+            visibleFiles: visibleFiles as any,
+            externalResources: ["https://cdn.tailwindcss.com"],
+          }}
+        />
       </div>
     </div>
   );
